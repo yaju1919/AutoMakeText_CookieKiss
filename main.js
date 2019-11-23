@@ -392,7 +392,5 @@
         save_data[v] = d;
     }));
     Interval();
-    setTimeout(()=>{
-        setConfig().appendTo($("body"));
-    }, 5000);
+    setConfig().appendTo($("body"));
 })();
