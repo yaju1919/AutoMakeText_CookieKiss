@@ -109,11 +109,12 @@
         //--------------------------------------
         var hideArea = $('#' + makeID(kind));
         if(!hideArea.get(0)){
-            yaju1919.addHideArea(h_select_kind.append("<br><br>"),{
+            yaju1919.addHideArea(h_select_kind,{
                 title: kind,
                 id2: makeID(kind),
             });
             hideArea = $('#' + makeID(kind));
+            h_select_kind.append("<br>");
         }
         if(!select[title]) {
             select[title] = yaju1919.addInputBool(hideArea,{
@@ -185,7 +186,7 @@
             if(!select[k]()) continue;
             for(var v in select_name){
                 if(!select_name[v]()) continue;
-                ar = ar.concat(DB[k][v]);
+                ar = ar.concat(v + DB[k][v]);
             }
         }
         yaju1919.addInputText(h_result.empty(),{
