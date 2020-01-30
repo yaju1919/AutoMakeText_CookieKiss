@@ -5,9 +5,6 @@
         "text-align": "center",
         padding: "1em"
     });
-    function addBtn(title, func){
-        return $("<button>").text(title).click(func).appendTo(h);
-    }
     $("<h1>",{text:"クッキー☆語録自動生成スクリプト"}).appendTo(h);
     $("<div>",{text:"使用する語録を選んで作成ボタンを押してください。"}).appendTo(h);
     h.append("<br>");
@@ -16,6 +13,8 @@
     h.append("<br>");
     $("<h2>",{text:"▼役名を選択"}).appendTo(h);
     var h_select_name = $("<div>").appendTo(h);
+    $("<h2>",{text:"▼生成方法を選択"}).appendTo(h);
+    var h_ui = $("<div>").appendTo(h);
     h.append("<br>");
     var h_result = $("<div>").appendTo(h);
     //---------------------------------------------------------
@@ -110,7 +109,7 @@
         //--------------------------------------
         var hideArea = $('#' + makeID(kind));
         if(!hideArea.get(0)){
-            yaju1919.addHideArea(h_select_kind,{
+            yaju1919.addHideArea(h_select_kind.append("<br><br>"),{
                 title: kind,
                 id2: makeID(kind),
             });
@@ -160,7 +159,7 @@
         }
     }
     //---------------------------------------------------------
-    var select_arg = yaju1919.addSelect(h,{
+    var select_arg = yaju1919.addSelect(h_ui,{
         title: "文生成アルゴリズム",
         placeholder: "選択してください",
         list: {
@@ -171,6 +170,9 @@
             "三重マルコフ連鎖": 5,
         }
     });
+    function addBtn(title, func){
+        return $("<button>").text(title).click(func).appendTo(h_ui);
+    }
     addBtn("この内容で作る！", main);
     function main(){
         /*var activNames = [];
