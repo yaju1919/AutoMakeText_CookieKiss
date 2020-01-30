@@ -119,8 +119,8 @@
         if(!select[title]) {
             select[title] = yaju1919.addInputBool(hideArea,{
                 title: title,
-                change: function(){
-                    if(start_flag) updateSelectName();
+                change: function(flag){
+                    if(start_flag && yaju1919.judgeType(flag,"Boolean")) updateSelectName();
                 }
             });
         }
