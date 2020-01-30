@@ -1,347 +1,211 @@
 (() => {
-  'use strict';
-    const yaju1919 = yaju1919_library;
-    const segmenter = new TinySegmenter();
-    const get = (url, callback) => {
-        yaju1919.get(url,{
-            success: callback,
-            fail: r => console.error(url)
-        });
-    };
-    const rand = yaju1919.rand;
-    const makeMarkov = (split_func, multiple = 1) => { // マルコフ連鎖を作る
-        let data = {};
-        const names = [];
-        const add = (name, text) => { // データ登録
+    'use strict';
+    var h = $("<div>").appendTo($("body")).css({
+        "text-align": "center",
+        padding: "1em"
+    });
+    function addBtn(title, func){
+        return $("<button>").text(title).click(func).appendTo(h);
+    }
+    $("<h1>",{text:"クッキー☆語録自動生成スクリプト"}).appendTo(h);
+    $("<div>",{text:"使用する語録を選んで作成ボタンを押してください。"}).appendTo(h);
+    var h_select_kind = $("<div>").appendTo(h);
+    var h_select_name = $("<div>").appendTo(h);
+    var h_result = $("<div>").appendTo(h);
+    //---------------------------------------------------------
+    var segmenter = new TinySegmenter();
+    function makeMarkov(split_func, multiple){ // マルコフ連鎖を作る
+        multiple = multiple || 1;
+        var data = {};
+        var names = [];
+        function add(name, text){ // データ登録
             if(names.indexOf(name) === -1) names.push(name);
-            let array = split_func(text);
-            [].concat(null, array, null).forEach((v,i,a)=>{
+            var array = split_func(text);
+            [].concat(null, array, null).forEach(function(v,i,a){
                 //break
-                const next_num = i + multiple;
+                var next_num = i + multiple;
                 if(next_num >= a.length) return;
                 //prev
-                let prev = '', correct = 0; // 補正値
+                var prev = '', correct = 0; // 補正値
                 if(v === null){ // 始端の場合
                     prev = null;
                     correct = multiple - 1;
                 }
                 else {
-                    for(let o = 0; o < multiple; o++) {
-                        let now = a[i + o];
+                    for(var o = 0; o < multiple; o++) {
+                        var now = a[i + o];
                         prev += now;
                     }
                 }
                 //next
-                let next = '';
-                for(let o = 0; o < multiple; o++) {
-                    let now = a[i + o + multiple - correct];
-                    if(!now){ // 終端のnullに触れた場合
+                var next = '';
+                for(var p = 0; p < multiple; p++) {
+                    var now2 = a[i + p + multiple - correct];
+                    if(!now2){ // 終端のnullに触れた場合
                         if(!data[next]) data[next] = [];
                         data[next].push(null);
                         break;
                     }
-                    next += now;
+                    next += now2;
                 }
                 // finish
                 if(!data[prev]) data[prev] = [];
                 data[prev].push(next);
             });
-        };
-        const make = () => { // マルコフ連鎖でつなげた文を返す
-            let result = '';
-            let word = rand(data[null]);
+        }
+        function make(){ // マルコフ連鎖でつなげた文を返す
+            var result = '';
+            var word = yaju1919.randArray(data[null]);
             while(word) {
                 result += word;
-                word = rand(data[word]);
+                word = yaju1919.randArray(data[word]);
             }
-            return [rand(names), result];
+            return [yaju1919.randArray(names), result];
+        }
+        return {
+            add: add,
+            make: make
         };
-        return {add:add,make:make};
-    };
-    let markov;
-    //--------------------------------------------------------------------------------------------------------------------------------
-    const main = () => {
-        if(!first_flag) return;
-        const kind = select.kind.f();
-        const title = select.title.f();
-        const name = select.name.f();
-        const mode = select.mode.f();
-        if(!(kind&&title&&name&&mode)) return;
-        const now = DB[kind][title][name];
-        let result;
-        let order_n = getOrder_num();
-        const order_max = Number(max_elm.text())+1;
-        switch(mode){
-            case "ランダム取得":
-                result = rand(now);
-                break;
-            case "順番に取り出す":
-                if(order_n >= now.length) order_n = 0;
-                result = now[order_n];
-                order_n++;
-                holder_order.find("input").val(order_n >= now.length ? 0 : order_n);
-                break;
-            default:
-                result = markov.make();
-                break;
-        }
-        if(flag_removeBrackets()) result = result[1].slice(1,-1);
-        else result = result.join("");
-        return result;
-    };
-    const setMarkov = () => {
-        const kind = select.kind.f();
-        const title = select.title.f();
-        const name = select.name.f();
-        const mode = select.mode.f();
-        if(!(kind&&title&&name&&mode)) return;
-        const now = DB[kind][title][name];
-        // 分割方式の設定
-        let split_func = s => WA_KA_CHI_GA_KI(s, getMode_num());
-        if(/単語/.test(mode)) split_func = s => segmenter.segment(s);
-        else if(/文字種/.test(mode)) split_func = s => WA_KA_CHI_GA_KI(s);
-        // 多重マルコフ連鎖
-        let multiple = 1;
-        if(/多重/.test(mode)) {
-            if(/2/.test(mode)) multiple = 2;
-            else if(/3/.test(mode)) multiple = 3;
-        }
-        //
-        markov = makeMarkov(split_func, multiple);
-        for(const array of now) markov.add(array[0], array[1]);
-        //----------------------------------------------------------------------------------------------------
-        const max = now.length - 1;
-        max_elm.text(max);
-        holder_order.find("input").val(0).width(String(max).length + "em");
-    };
-    //--------------------------------------------------------------------------------------------------------------------------------
-    //--------------------------------------------------------------------------------------------------------------------------------
-    const ALL_SIGN = "すべて";
-    const select = {};
-    const DEFAULT = {
-        kind: "ジャンル",
-        title: "タイトル",
-        name: "　　役名",
-        mode: "生成方式"
-    };
-    for(const k in DEFAULT){
-        if(!select[k]) select[k] = {};
-        const now = select[k];
-        now.title = DEFAULT[k];
-        now.d = {"": null};
-        switch(k){
-            case "kind":
-                now.change = v => {
-                    if(!v) return;
-                    const now_s = select.title.d;
-                    for(const k in now_s) delete now_s[k];
-                    now_s[""] = null;
-                    for(const key in DB[v]) now_s[key] = key;
-                    setMarkov();
-                };
-                select.kind.d[ALL_SIGN] = ALL_SIGN;
-                break;
-            case "title":
-                now.change = v => {
-                    const v2 = select.kind.f();
-                    if(!v || !v2) return;
-                    const now_s = select.name.d;
-                    for(const k in now_s) delete now_s[k];
-                    now_s[""] = null;
-                    for(const key in DB[v2][v]) {
-                        if(DB[v2][v][key].length <= 1) continue; // 1セリフ以下なら除外
-                        now_s[key] = key;
-                    }
-                    setMarkov();
-                };
-                break;
-            case "name":
-                now.change = v => {
-                    if(!v) return;
-                    setMarkov();
-                };
-                break;
-            case "mode":
-                now.change = v => {
-                    if(!v) return;
-                    holder_markov.hide();
-                    holder_order.hide();
-                    if(/文字数/.test(v)) holder_markov.show();
-                    else if(/順番/.test(v)){
-                        holder_order.show();
-                    }
-                    setMarkov();
-                };
-                [
-                    "ランダム取得",
-                    "順番に取り出す",
-                    "マルコフ連鎖(単語)",
-                    "多重マルコフ連鎖(2単語)",
-                    "多重マルコフ連鎖(3単語)",
-                    "マルコフ連鎖(文字種)",
-                    "マルコフ連鎖(文字数)"
-                ].forEach(v=>{
-                    now.d[v] = v;
-                });
-                break;
-        }
     }
-    let flag_removeBrackets, holder_markov, getMode_num, holder_order, getOrder_num, max_elm, first_flag;
-    const setConfig = say => {
-        first_flag = true;
-        const h = $("<div>");
-        const appendButton = (name, func) => $("<button>").appendTo(h).text(name).click(func);
-        appendButton("リソースの更新",()=>{
-            copied_flag = false;
-            Interval(true);
-        });
-        //---------------------------------------------------------
-        for(const k in select){
-            select[k].f = yaju1919.appendSelect(h,{
-                title: select[k].title,
-                list: select[k].d,
-                value: select[k].v,
-                change: v=>{
-                    select[k].change(v);
-                    h.find("select").trigger('update');
-                    select[k].v = v;
-                },
-                width: "65%"
+    //---------------------------------------------------------
+    var timeoutID = []; // サーバーの負荷を減らす
+    function getResource(update_flag){ // 素材を手に入れる
+        while(timeoutID.length) clearTimeout(timeoutID.pop());
+        resource_URL_list.forEach(function(v,i){
+            var id = setTimeout(function(){
+                $.get("resource/" + v, function(data){
+                    setDB(v,data);
+                    yaju1919.save(v, data);
+                });
+            },3000*i);
+            timeoutID.push(id);
+            if(update_flag) return;
+            yaju1919.load(v, function(data){
+                clearTimeout(id);
+                setDB(v,data);
             });
-        }
-        //---------------------------------------------------------
-        h.children().each((i,e)=>$(e).after("<br>"));
-        //---------------------------------------------------------
-        flag_removeBrackets = yaju1919.appendCheckButton(h,{
-            title:"括弧を外す",
-            value: true
         });
-        const flag_copy = yaju1919.appendCheckButton(h,{
-            title:"コピー",
-            value: false
-        });
-        //---------------------------------------------------------
-        appendButton("語録生成", ()=>{
-            const result = main();
-            result_holder.text(result);
-            if(flag_copy()) yaju1919.copy(result);
-            if(flag_auto()) say(result);
-        }).css({backgroundColor:"red",color:"yellow"});
-        //---------------------------------------------------------
-        holder_markov = $("<div>").appendTo(h);
-        getMode_num = yaju1919.appendInputNumber(holder_markov,{
-            title: "分割文字数",
-            placeholder: "整数",
-            min: 1,
-            value: 2,
-            save: "mode_num",
-        });
-        //---------------------------------------------------------
-        holder_order = $("<div>").appendTo(h);
-        getOrder_num = yaju1919.appendInputNumber(holder_order.append("次の位置("),{
-            placeholder: "整数",
-            min: 0,
-            value: null,
-        });
-        max_elm = $("<span>");
-        holder_order.append("/").append(max_elm).append(")");
-        //---------------------------------------------------------
-        holder_markov.hide();
-        holder_order.hide();
-        //---------------------------------------------------------
-        const result_holder = $("<div>").appendTo(h);
-        return h;
-    };
-    //--------------------------------------------------------------------------------------------------------------------------------
-    //--------------------------------------------------------------------------------------------------------------------------------
-    //------リソースの更新--------------------------------------------------------------------------------------------------------------------------
-    const DB = {};
-    const add_to_DB = (text, name, p1, p2, p3) => {
-        if(!DB[p1]) DB[p1] = {};
-        if(!DB[p1][p2]) DB[p1][p2] = {};
-        if(!DB[p1][p2][p3]) DB[p1][p2][p3] = [];
-        DB[p1][p2][p3].push([name, text]);
-    };
-    const getResource = (now,isOverwrite) => {
-        const ar = now.split('/');
-        const kind = ar[0];
-        const title = ar[1];
-        const url = "https://raw.githubusercontent.com/yaju1919/CookieKiss/master/resource/" + now;
-        if(kind === ALL_SIGN || title === ALL_SIGN) return;
-        select.kind.d[kind] = kind;
-        const brackets = {
+    }
+    getResource();
+    //---------------------------------------------------------
+    var DB = {},
+        brackets = {
             '「': '」',
             '（': '）',
             '(': ')'
-        };
-        const func = str => {
-            str.split("\n").filter(v=>v).forEach(v=>{
-                const key_position = (()=>{
-                    let min = Infinity;
-                    for(const e of Object.keys(brackets)){
-                        const p = v.indexOf(e);
-                        if(p!==-1&&p<min) min = p;
-                    }
-                    return min;
-                })();
-                if(key_position === Infinity) return;
-                const name = v.slice(0,key_position).trim();
-                if(name.length===0||name.length>10) return;
-                const key = v[key_position];
-                const first = key_position+1;
-                const last = v.lastIndexOf(brackets[key]);
-                if(last===-1) return;
-                const text = key + v.slice(first, last).trim() + brackets[key];
-                const list = [kind, title, name];
-                ["000","100","010","001","110","101","011","111"].forEach(v=>{
-                    const a = v.split("").map((v,i)=>Number(v)?list[i]:ALL_SIGN);
-                    add_to_DB(text, name, a[0], a[1], a[2]);
+        },
+        select = {};
+    function makeID(str){
+        return 'a' + yaju1919.encode(str);
+    }
+    function setDB(url,str){
+        var ar = url.split('/');
+        var kind = ar[0],
+            title = ar[1];
+        //--------------------------------------
+        var hideArea = $('#' + makeID(kind));
+        if(!hideArea.get(0)){
+            yaju1919.addHideArea(h_select_kind,{
+                title: kind,
+                id2: makeID(kind),
+            });
+            hideArea = $('#' + makeID(kind));
+        }
+        if(!select[title]) {
+            select[title] = yaju1919.addInputBool(hideArea,{
+                title: title,
+                change: function(v){
+                    if(v) updateSelectName();
+                }
+            });
+        }
+        //--------------------------------------
+        str.split('\n').filter(function(v){
+            return v.trim().length;
+        }).forEach(function(v){
+            var min = yaju1919.min(Object.keys(brackets).map(function(v2){
+                return (v + v2).indexOf(v2);
+            }));
+            if(min > v.length) return;
+            var name = v.slice(0,min).trim();
+            if(name === '' || name.length > 10) return;
+            var key = v[min];
+            var last = v.lastIndexOf(brackets[key]);
+            if(last === -1) return;
+            var text = key + v.slice(min + 1, last).trim() + brackets[key];
+            //---------------------------------------------------------
+            if(!DB[title]) DB[title] = {};
+            if(!DB[title][name]) DB[title][name] = [];
+            DB[title][name].push(text);
+            //---------------------------------------------------------
+        });
+    }
+    var select_name;
+    function updateSelectName(){
+        select_name = {};
+        h_select_name.empty();
+        for(var k in select){
+            if(!select[k]()) continue;
+            for(var v in DB[k]){
+                if(select_name[v]) return;
+                select_name[v] = yaju1919.addInputBool(h_select_name,{
+                    title: v,
                 });
-            });
-        };
-        if(save_data[now]&&!isOverwrite) { // セーブデータがあればそれ優先
-            wait_time = 0;
-            func(save_data[now]);
+            };
         }
-        else {
-            wait_time = 1000;
-            get(url, r=>{
-                func(r);
-                yaju1919.save(now,r);
-            });
+    }
+    //---------------------------------------------------------
+    var select_arg = yaju1919.addSelect(h,{
+        title: "文生成アルゴリズム",
+        placeholder: "選択してください",
+        list: {
+            "ランダム": 1,
+            "順番": 2,
+            "マルコフ連鎖": 3,
+            "二重マルコフ連鎖": 4,
+            "三重マルコフ連鎖": 5,
         }
-    };
-    let wait_time, stack, copied_flag;
-    const Interval = isOverwrite => {
-        if(!copied_flag) {
-            wait_time = 1000;
-            copied_flag = true;
-            stack = LIST.slice();
+    });
+    addBtn("この内容で作る！", main);
+    function main(){
+        /*var activNames = [];
+        for(var k2 in select_name){
+            if(!select_name[k2]()) continue;
+            activNames.push(k2);
+        }*/
+        var ar = [];
+        for(var k in select){
+            if(!select[k]()) continue;
+            for(var v in DB[k]){
+                if(!select_name[v]()) continue;
+                ar = ar.concat(DB[k][v]);
+            }
         }
-        if(!stack.length) return;
-        const now = stack.shift();
-        getResource(now,isOverwrite);
-        setTimeout(()=>Interval(isOverwrite), wait_time);
-    };
-    const LIST = [
+        yaju1919.addInputText(h_result.empty(),{
+            title: "output",
+            value: yaju1919.randArray(ar),
+            readonly: true,
+        });
+    }
+    var resource_URL_list = [
         "クッキー☆/魔理沙とアリスのクッキーKiss",
         "クッキー☆/旧クリスマス企画",
         "クッキー☆/お正月企画",
         "クッキー☆/新クリスマス企画",
-        //"クッキー☆/クッソー☆",
-        //"クッキー☆/クッソー☆☆",
+        "クッキー☆/クッソー☆",
+        "クッキー☆/クッソー☆☆",
         "クッキー☆/霊夢と魔理沙のチョコレート★ハート",
         "クッキー☆/メッモー☆",
         "クッキー☆/クラウンピースと小さな勇気",
-        //"クッキー☆/カス☆",
+        "クッキー☆/カス☆",
         "クッキー☆/鍋パーティ",
         "クッキー☆/クッキー☆☆☆",
-        //"クッキー☆/魔理沙さんのスペルカードを探せ！",
-        //"クッキー☆/再翻訳クッキー☆",
-        //"クッキー☆/UDKとRUの確執",
-        //"クッキー☆/シアトル・マリナーズは関係ないだろ",
-        //"クッキー☆/イワナ",
-        //"クッキー☆/HSI姉貴こえ部音声まとめ.mp138",
+        "クッキー☆/魔理沙さんのスペルカードを探せ！",
+        "クッキー☆/再翻訳クッキー☆",
+        "クッキー☆/UDKとRUの確執",
+        "クッキー☆/シアトル・マリナーズは関係ないだろ",
+        "クッキー☆/イワナ",
+        "クッキー☆/HSI姉貴こえ部音声まとめ.mp138",
         "クッキー☆/魔理沙とアリスと根菜のゴルゴンゾーラ和え",
         "淫夢/第一章「極道脅迫！体育部員たちの逆襲」",
         "淫夢/第二章「モデル反撃！犯されるスカウトマン」",
@@ -387,12 +251,4 @@
         "aiueo700/集団ストーカーに住居侵入され自転車を逆さまにしたり牛乳をぶちまけたりされたから捕まえたら暴行罪をでっち上げられました",
         "aiueo700/２階のひさしの下に防犯カメラを取り付けたら２日で集団ストーカーに盗まれました",
     ];
-    const save_data = {};
-    LIST.forEach(v=>yaju1919.load(v,d=>{
-        save_data[v] = d;
-    }));
-    Interval();
-    setTimeout(()=>{
-        setConfig().appendTo($("body"));
-    }, 5000);
 })();
