@@ -1,5 +1,6 @@
 (() => {
     'use strict';
+    var start_flag = false;
     var h = $("<div>").appendTo($("body")).css({
         "text-align": "center",
         padding: "1em"
@@ -119,8 +120,8 @@
         if(!select[title]) {
             select[title] = yaju1919.addInputBool(hideArea,{
                 title: title,
-                change: function(v){
-                    if(v) updateSelectName();
+                change: function(){
+                    if(start_flag) updateSelectName();
                 }
             });
         }
@@ -256,4 +257,5 @@
         "aiueo700/集団ストーカーに住居侵入され自転車を逆さまにしたり牛乳をぶちまけたりされたから捕まえたら暴行罪をでっち上げられました",
         "aiueo700/２階のひさしの下に防犯カメラを取り付けたら２日で集団ストーカーに盗まれました",
     ];
+    start_flag = true;
 })();
