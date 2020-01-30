@@ -9,8 +9,13 @@
     }
     $("<h1>",{text:"クッキー☆語録自動生成スクリプト"}).appendTo(h);
     $("<div>",{text:"使用する語録を選んで作成ボタンを押してください。"}).appendTo(h);
+    h.append("<br>");
+    $("<h2>",{text:"▼ジャンルを選択"}).appendTo(h);
     var h_select_kind = $("<div>").appendTo(h);
+    h.append("<br>");
+    $("<h2>",{text:"▼役名を選択"}).appendTo(h);
     var h_select_name = $("<div>").appendTo(h);
+    h.append("<br>");
     var h_result = $("<div>").appendTo(h);
     //---------------------------------------------------------
     var segmenter = new TinySegmenter();
@@ -86,6 +91,7 @@
             });
         });
     }
+    getResource();
     //---------------------------------------------------------
     var DB = {},
         brackets = {
@@ -175,7 +181,7 @@
         var ar = [];
         for(var k in select){
             if(!select[k]()) continue;
-            for(var v in DB[k]){
+            for(var v in select_name){
                 if(!select_name[v]()) continue;
                 ar = ar.concat(DB[k][v]);
             }
@@ -250,5 +256,4 @@
         "aiueo700/集団ストーカーに住居侵入され自転車を逆さまにしたり牛乳をぶちまけたりされたから捕まえたら暴行罪をでっち上げられました",
         "aiueo700/２階のひさしの下に防犯カメラを取り付けたら２日で集団ストーカーに盗まれました",
     ];
-    getResource();
 })();
