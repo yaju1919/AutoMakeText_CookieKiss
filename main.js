@@ -186,7 +186,7 @@
             if(!select[k]()) continue;
             for(var v in select_name){
                 if(!select_name[v]()) continue;
-                ar = ar.concat(v + DB[k][v]);
+                ar = ar.concat(DB[k][v]);
             }
         }
         yaju1919.addInputText(h_result.empty(),{
