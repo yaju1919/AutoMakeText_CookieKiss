@@ -223,8 +223,9 @@
             if(!select[k]()) continue;
             for(var v in select_name){
                 if(!select_name[v]()) continue;
-console.log(v,k)
-                ar.push([v, DB[k][v]]); // 役名, 語録
+                var texts = DB[k][v];
+                if(!texts) continue;
+                ar.push([v, texts]); // 役名, 語録
             }
         }
         var arg = select_arg();
