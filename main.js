@@ -159,7 +159,7 @@
         for(var k in select){
             if(!select[k]()) continue;
             for(var v in DB[k]){
-                if(select_name[v]) return;
+                if(select_name[v]) continue;
                 select_name[v] = yaju1919.addInputBool(h_select_name,{
                     title: v,
                 });
@@ -223,6 +223,7 @@
             if(!select[k]()) continue;
             for(var v in select_name){
                 if(!select_name[v]()) continue;
+console.log(v,k)
                 ar.push([v, DB[k][v]]); // 役名, 語録
             }
         }
