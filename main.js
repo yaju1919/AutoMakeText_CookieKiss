@@ -267,7 +267,7 @@
                 });
             });
             activFunc = function(){
-                return markov.make();
+                return markov.make().join('');
             };
             $(document.body).css({cursor: "auto"});
             return true; // 作成完了
