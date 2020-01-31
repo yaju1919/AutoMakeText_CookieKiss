@@ -266,8 +266,6 @@
                 }
 
             })(), inputNumberMultiple());
-            $(document.body).css({cursor: "wait"});
-            h_result.text("モデル作成中...");
             ar.forEach(function(v){ // クッソ時間かかる処理
                 v[1].forEach(function(text){
                     markov.add(v[0],text);
@@ -276,13 +274,27 @@
             activFunc = function(){
                 return markov.make().join('');
             };
-            $(document.body).css({cursor: "auto"});
-            h_result.text("モデルの作成が完了しました。");
             return true; // 作成完了
         }
     }
     $("<h2>",{text:"4.モデルを作成"}).appendTo(h_ui);
-    addBtn("この内容で文生成モデルを作成", make, h_ui);
+    addBtn("この内容で文生成モデルを作成", function(){
+        $(document.body).css({cursor: "wait"});
+        h_result.text("モデル作成中...");
+        try{
+            var result = make();
+            if(result) h_result.text("モデルの作成が完了しました。");
+            else h_result.text("原因不明のエラーです。");
+        }
+        catch(err){
+            $("<div>").appendTo(h_result.empty()).text("モデルの作成に失敗しました。").css({
+                color: "red",
+                backgroundColor: "pink"
+            });
+            $("<div>").appendTo(h_result).text(err);
+        }
+        $(document.body).css({cursor: "auto"});
+    }, h_ui);
     $("<h2>",{text:"5.文生成"}).appendTo(h_ui);
     addBtn("文生成", function(){
         if(!activFunc) return h_result.text("文生成モデルがありません。");
