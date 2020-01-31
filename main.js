@@ -274,7 +274,7 @@
         }
     }
     function addBtn(title, func){
-        return $("<button>").text(title).click(func).appendTo(h_ui.append("<br><br>"));
+        return $("<button>").text(title).click(func).appendTo(h_ui);
     }
     $("<h2>",{text:"4.モデルを作成"}).appendTo(h_ui);
     addBtn("この内容で文生成モデルを作成", make);
