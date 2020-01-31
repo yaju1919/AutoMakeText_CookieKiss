@@ -2,7 +2,8 @@
     'use strict';
     var h = $("<div>").appendTo($("body")).css({
         "text-align": "center",
-        padding: "1em"
+        padding: "1em",
+        "background-image": 'url("https://lohas.nicoseiga.jp/thumb/3364040i?")'
     });
     function addBtn(title, func, parentNode){
         return $("<button>").text(title).click(func).appendTo(parentNode||h);
