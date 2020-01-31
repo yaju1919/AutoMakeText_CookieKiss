@@ -4,6 +4,9 @@
         "text-align": "center",
         padding: "1em"
     });
+    function addBtn(title, func, parentNode){
+        return $("<button>").text(title).click(func).appendTo(parentNode||h);
+    }
     $("<h1>",{text:"クッキー☆語録自動生成スクリプト"}).appendTo(h);
     $("<div>",{text:"使用する語録を選んで作成ボタンを押してください。"}).appendTo(h);
     h.append("<br>");
@@ -11,6 +14,9 @@
     var h_select_kind = $("<div>").appendTo(h);
     h.append("<br>");
     $("<h2>",{text:"2.役名を選択"}).appendTo(h);
+    addBtn("選択を反転", function(){
+        h_select_name.find("button").click();
+    });
     var h_select_name = $("<div>").appendTo(h);
     $("<h2>",{text:"3.生成方法を選択"}).appendTo(h);
     var h_ui = $("<div>").appendTo(h);
@@ -273,11 +279,8 @@
             return true; // 作成完了
         }
     }
-    function addBtn(title, func){
-        return $("<button>").text(title).click(func).appendTo(h_ui);
-    }
     $("<h2>",{text:"4.モデルを作成"}).appendTo(h_ui);
-    addBtn("この内容で文生成モデルを作成", make);
+    addBtn("この内容で文生成モデルを作成", make, h_ui);
     $("<h2>",{text:"5.文生成"}).appendTo(h_ui);  
     addBtn("文生成", function(){
         if(!activFunc) return h_result.text("文生成モデルがありません。");
@@ -286,7 +289,7 @@
             value: activFunc(),
             readonly: true,
         });
-    });
+    }, h_ui);
     var resource_URL_list = [
         "クッキー☆/魔理沙とアリスのクッキーKiss",
         "クッキー☆/旧クリスマス企画",
