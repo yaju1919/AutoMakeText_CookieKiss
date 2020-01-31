@@ -96,7 +96,7 @@
         });
     }
     //---------------------------------------------------------
-    var DB = {},
+    var DB = {}, // ﾀﾞｲｳﾞｫｰ
         brackets = {
             '「': '」',
             '（': '）',
@@ -216,7 +216,8 @@
     var activFunc; // 現在稼働している関数
     window.DB = DB; // for debug
     function make(){
-        var ar = [];
+        var ar = [],
+            count = 0;
         window.ar = ar; // for debug
         for(var k in select){
             if(!select[k]()) continue;
@@ -225,9 +226,10 @@
                 var texts = DB[k][v];
                 if(!texts) continue;
                 ar.push([v, texts]); // 役名, 語録
+                count++;
             }
         }
-        h_show_length.text("語録の数:" + ar.length);
+        h_show_length.text("語録の数:" + count);
         var arg = select_arg();
         if(['1','2'].indexOf(arg)!==-1){
             var arr = [];
