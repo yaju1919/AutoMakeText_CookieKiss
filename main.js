@@ -1,4 +1,4 @@
-(() => {
+(function(){
     'use strict';
     var h = $("<div>").appendTo($("body")).css({
         "text-align": "center",
@@ -7,12 +7,12 @@
     $("<h1>",{text:"クッキー☆語録自動生成スクリプト"}).appendTo(h);
     $("<div>",{text:"使用する語録を選んで作成ボタンを押してください。"}).appendTo(h);
     h.append("<br>");
-    $("<h2>",{text:"▼ジャンルを選択"}).appendTo(h);
+    $("<h2>",{text:"1.ジャンルを選択"}).appendTo(h);
     var h_select_kind = $("<div>").appendTo(h);
     h.append("<br>");
-    $("<h2>",{text:"▼役名を選択"}).appendTo(h);
+    $("<h2>",{text:"2.役名を選択"}).appendTo(h);
     var h_select_name = $("<div>").appendTo(h);
-    $("<h2>",{text:"▼生成方法を選択"}).appendTo(h);
+    $("<h2>",{text:"3.生成方法を選択"}).appendTo(h);
     var h_ui = $("<div>").appendTo(h);
     h.append("<br>");
     var h_result = $("<div>").appendTo(h);
@@ -276,7 +276,9 @@
     function addBtn(title, func){
         return $("<button>").text(title).click(func).appendTo(h_ui.append("<br><br>"));
     }
+    $("<h2>",{text:"4.モデルを作成"}).appendTo(h_ui);
     addBtn("この内容で文生成モデルを作成", make);
+    $("<h2>",{text:"5.文生成"}).appendTo(h);  
     addBtn("文生成", function(){
         if(!activFunc) return h_result.text("文生成モデルがありません。");
         yaju1919.addInputText(h_result.empty(),{
