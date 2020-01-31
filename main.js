@@ -227,6 +227,7 @@
                 ar.push([v, texts]); // 役名, 語録
             }
         }
+        h_show_length.text("語録の数:" + ar.length);
         var arg = select_arg();
         if(['1','2'].indexOf(arg)!==-1){
             var arr = [];
@@ -292,6 +293,7 @@
             $("<div>").appendTo(h_result).text(err);
         }
     }, h_ui);
+    var h_show_length = $("<div>").appendTo(h_ui);
     $("<h2>",{text:"5.文生成"}).appendTo(h_ui);
     addBtn("文生成", function(){
         if(!activFunc) return h_result.text("文生成モデルがありません。");
