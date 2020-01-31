@@ -1,6 +1,5 @@
 (() => {
     'use strict';
-    var start_flag = false;
     var h = $("<div>").appendTo($("body")).css({
         "text-align": "center",
         padding: "1em"
@@ -18,7 +17,6 @@
     h.append("<br>");
     var h_result = $("<div>").appendTo(h);
     //---------------------------------------------------------
-    var segmenter = new TinySegmenter();
     function makeMarkov(split_func, multiple){ // マルコフ連鎖を作る
         multiple = multiple || 1;
         var data = {};
@@ -116,14 +114,17 @@
             hideArea = $('#' + makeID(kind));
             h_select_kind.append("<br>");
         }
-        if(!select[title]) {
+        (function(){
+            if(select[title]) return;
+            var flag = false;
             select[title] = yaju1919.addInputBool(hideArea,{
                 title: title,
-                change: function(flag){
-                    if(start_flag && yaju1919.judgeType(flag,"Boolean")) updateSelectName();
+                change: function(){
+                    if(flag) updateSelectName();
+                    else flag = true;
                 }
             });
-        }
+        })();
         //--------------------------------------
         str.split('\n').filter(function(v){
             return v.trim().length;
@@ -164,37 +165,121 @@
         title: "文生成アルゴリズム",
         placeholder: "選択してください",
         list: {
-            "ランダム": 1,
-            "順番": 2,
-            "マルコフ連鎖": 3,
-            "二重マルコフ連鎖": 4,
-            "三重マルコフ連鎖": 5,
+            "ランダム": '1',
+            "順番": '2',
+            "マルコフ連鎖": '3',
+        },
+        change: function(v){
+            if(v === '2') $("#aa").show();
+            else $("#aa").hide();
+            if(v === '3') $("#bb").add("#cc").show();
+            else $("#bb").add("#cc").hide();
         }
     });
-    function addBtn(title, func){
-        return $("<button>").text(title).click(func).appendTo(h_ui);
-    }
-    addBtn("この内容で作る！", main);
-    function main(){
-        /*var activNames = [];
-        for(var k2 in select_name){
-            if(!select_name[k2]()) continue;
-            activNames.push(k2);
-        }*/
+    var inputNumberOrder = yaju1919.addInputNumber(h_ui,{
+        id: "aa",
+        title: "順番",
+        min: 0,
+    });
+    $("#aa").hide();
+    var inputNumberMultiple = yaju1919.addInputNumber(h_ui,{
+        id: "bb",
+        title: "多重マルコフ連鎖",
+        min: 1,
+    });
+    $("#bb").hide();
+    var select_arg_split = yaju1919.addSelect(h_ui,{
+        id: "cc",
+        title: "品詞分解アルゴリズム",
+        placeholder: "選択してください",
+        list: {
+            "文字数ごとに分割": '1',
+            "文字種ごとに分割": '2',
+            "形態素解析": '3',
+        },
+        change: function(v){
+            if(v === '1') $("#dd").show();
+            else $("#dd").hide();
+        }
+    });
+    $("#cc").hide();
+    var inputNumberSplit = yaju1919.addInputNumber(h_ui,{
+        id: "dd",
+        title: "分割する文字数",
+        value: 2,
+        min: 1,
+        max: 99,
+    });
+    $("#dd").hide();
+    var activFunc; // 現在稼働している関数
+    function make(){
         var ar = [];
         for(var k in select){
             if(!select[k]()) continue;
             for(var v in select_name){
                 if(!select_name[v]()) continue;
-                ar = ar.concat(DB[k][v]);
+                ar.push([v, DB[k][v]]); // 役名, 語録
             }
         }
+        var arg = select_arg();
+        if(['1','2'].indexOf(arg)!==-1){
+            var arr = ar.map(function(v){
+                return v.join('');
+            });
+            if(arg === '1'){ // ランダム
+                activFunc = function(){
+                    return yaju1919.randArray(arr);
+                };
+            }
+            else if(arg === '2'){ // 順番
+                $("#aa").val('0');
+                activFunc = function(){
+                    var num = inputNumberOrder();
+                    var order = (num++)%arr.length;
+                    $("#aa").val(order);
+                    return arr[order];
+                };
+            }
+            return true; // 作成完了
+        }
+        else if(arg === '3'){ // マルコフ連鎖
+            var markov = makeMarkov((function(){
+                var arg_split = select_arg_split();
+                if(arg_split === '1'){ // 文字数ごと
+                    return function(str){ return WA_KA_CHI_GA_KI(str, inputNumberSplit()); };
+                }
+                else if(arg_split === '2'){ // 文字種ごと
+                    return function(str){ return WA_KA_CHI_GA_KI(str); };
+                }
+                else if(arg_split === '3'){ // 形態素解析
+                    var segmenter = new TinySegmenter();
+                    return function(str){ return segmenter.segment(str); };
+                }
+
+            })(), inputNumberMultiple());
+            $(document.body).css({cursor: "wait"});
+            ar.forEach(function(v){ // クッソ時間かかる処理
+                markov.add(v[0],v[1]);
+            });
+            activFunc = function(){
+                return markov.make();
+            };
+            $(document.body).css({cursor: "auto"});
+            return true; // 作成完了
+        }
+    }
+    function addBtn(title, func){
+        return $("<button>").text(title).click(func).appendTo(h_ui.append("<br><br>"));
+    }
+    addBtn("この内容で文生成モデルを作成", make);
+    addBtn("文生成", function(){
+        if(!activFunc) return h_result.text("文生成モデルがありません。");
         yaju1919.addInputText(h_result.empty(),{
             title: "output",
-            value: yaju1919.randArray(ar),
+            value: activFunc(),
             readonly: true,
         });
-    }
+    });
     var resource_URL_list = [
         "クッキー☆/魔理沙とアリスのクッキーKiss",
         "クッキー☆/旧クリスマス企画",
@@ -259,6 +344,5 @@
         "aiueo700/集団ストーカーに住居侵入され自転車を逆さまにしたり牛乳をぶちまけたりされたから捕まえたら暴行罪をでっち上げられました",
         "aiueo700/２階のひさしの下に防犯カメラを取り付けたら２日で集団ストーカーに盗まれました",
     ];
-    start_flag = true;
     getResource();
 })();
