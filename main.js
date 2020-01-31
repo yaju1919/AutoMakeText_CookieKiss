@@ -8,14 +8,15 @@
         "background-repeat": "no-repeat", // 画像をタイル状に繰り返し表示しない
     });
     $("<div>").appendTo($("body")).css({
-        zIndex: 1,
+        zIndex: -1,
         background: "rgba(255,255,255,0.9)",
         position: "fixed",
-        height: "100%",
-        width: "100%",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
     });
     var h = $("<div>").appendTo($("body")).css({
-        zIndex: 2,
         "text-align": "center",
         padding: "1em",
     });
