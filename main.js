@@ -1,21 +1,23 @@
 (function(){
     'use strict';
-    $("html").css({
-        height: "100%",
-    });
     $("body").css({
-        height: "100%",
         "background-image": 'url("https://lohas.nicoseiga.jp/thumb/3364040i?")',
         "background-attachment": "fixed", // コンテンツの高さが画像の高さより大きい時、動かないように固定
         "background-position": "center center",// 画像を常に天地左右の中央に配置
         "background-size": "cover", // 表示するコンテナの大きさに基づいて、背景画像を調整
         "background-repeat": "no-repeat", // 画像をタイル状に繰り返し表示しない
     });
-    var h = $("<div>").appendTo($("body")).css({
+    $("<div>").appendTo($("body")).css({
+        zIndex: 1,
+        background: "rgba(255,255,255,0.9)",
+        position: "fixed",
         height: "100%",
+        width: "100%",
+    });
+    var h = $("<div>").appendTo($("body")).css({
+        zIndex: 2,
         "text-align": "center",
         padding: "1em",
-        background: "rgba(255,255,255,0.9)",
     });
     function addBtn(title, func, parentNode){
         return $("<button>").text(title).click(func).appendTo(parentNode||h);
