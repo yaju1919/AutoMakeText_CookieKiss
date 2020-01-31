@@ -226,7 +226,7 @@
                 var texts = DB[k][v];
                 if(!texts) continue;
                 ar.push([v, texts]); // 役名, 語録
-                count++;
+                count += texts.length;
             }
         }
         h_show_length.text("語録の数:" + count);
