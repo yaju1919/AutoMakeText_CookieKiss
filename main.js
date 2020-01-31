@@ -299,6 +299,7 @@
             title: "output",
             value: activFunc(),
             readonly: true,
+            textarea: true
         });
     }, h_ui);
     var resource_URL_list = [
