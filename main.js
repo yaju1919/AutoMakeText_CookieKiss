@@ -176,26 +176,25 @@
             "マルコフ連鎖": '3',
         },
         change: function(v){
-            if(v === '2') $("#aa").parent().show();
-            else $("#aa").parent().hide();
-            if(v === '3') $("#bb").parent().add($("#cc").parent()).show();
-            else $("#bb").parent().add($("#cc").parent()).hide();
+            if(!v.length) return;
+            if(v === '2') $("#order").parent().show();
+            else $("#order").parent().hide();
+            if(v === '3') h_markov.show();
+            else h_markov.hide();
         }
     });
     var inputNumberOrder = yaju1919.addInputNumber(h_ui,{
-        id: "aa",
+        id: "order",
         title: "順番",
         min: 0,
     });
-    $("#aa").parent().hide();
-    var inputNumberMultiple = yaju1919.addInputNumber(h_ui,{
-        id: "bb",
+    $("#order").parent().hide();
+    var h_markov = $("<div>").appendTo(h_ui).hide();
+    var inputNumberMultiple = yaju1919.addInputNumber(h_markov,{
         title: "多重マルコフ連鎖",
         min: 1,
     });
-    $("#bb").parent().hide();
-    var select_arg_split = yaju1919.addSelect(h_ui,{
-        id: "cc",
+    var select_arg_split = yaju1919.addSelect(h_markov,{
         title: "品詞分解アルゴリズム",
         placeholder: "選択してください",
         list: {
@@ -204,20 +203,20 @@
             "形態素解析": '3',
         },
         change: function(v){
-            if(v === '1') $("#dd").parent().show();
-            else $("#dd").parent().hide();
+            if(v === '1') $("#split").parent().show();
+            else $("#split").parent().hide();
         }
     });
-    $("#cc").parent().hide();
-    var inputNumberSplit = yaju1919.addInputNumber(h_ui,{
-        id: "dd",
+    var inputNumberSplit = yaju1919.addInputNumber(h_markov,{
+        id: "split",
         title: "分割する文字数",
         value: 2,
         min: 1,
         max: 99,
     });
-    $("#dd").parent().hide();
+    $("#split").parent().hide();
     var activFunc; // 現在稼働している関数
+    window.DB = DB;
     function make(){
         var ar = [];
         for(var k in select){
@@ -228,6 +227,7 @@
             }
         }
         var arg = select_arg();
+        window.ar = ar;
         if(['1','2'].indexOf(arg)!==-1){
             var arr = [];
             ar.forEach(function(v){
@@ -241,11 +241,11 @@
                 };
             }
             else if(arg === '2'){ // 順番
-                $("#aa").val('0');
+                $("#order").val('0');
                 activFunc = function(){
                     var next = inputNumberOrder() + 1;
                     var order = next % arr.length;
-                    $("#aa").val(String(order));
+                    $("#order").val(String(order));
                     return arr[order];
                 };
             }
@@ -267,6 +267,7 @@
 
             })(), inputNumberMultiple());
             $(document.body).css({cursor: "wait"});
+            h_result.text("モデル作成中...");
             ar.forEach(function(v){ // クッソ時間かかる処理
                 v[1].forEach(function(text){
                     markov.add(v[0],text);
@@ -276,12 +277,13 @@
                 return markov.make().join('');
             };
             $(document.body).css({cursor: "auto"});
+            h_result.text("モデルの作成が完了しました。");
             return true; // 作成完了
         }
     }
     $("<h2>",{text:"4.モデルを作成"}).appendTo(h_ui);
     addBtn("この内容で文生成モデルを作成", make, h_ui);
-    $("<h2>",{text:"5.文生成"}).appendTo(h_ui);  
+    $("<h2>",{text:"5.文生成"}).appendTo(h_ui);
     addBtn("文生成", function(){
         if(!activFunc) return h_result.text("文生成モデルがありません。");
         yaju1919.addInputText(h_result.empty(),{
