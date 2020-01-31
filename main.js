@@ -1,21 +1,6 @@
 (function(){
     'use strict';
-    $("body").css({
-        "background-image": 'url("https://lohas.nicoseiga.jp/thumb/3364040i?")',
-        "background-attachment": "fixed", // コンテンツの高さが画像の高さより大きい時、動かないように固定
-        "background-position": "center center",// 画像を常に天地左右の中央に配置
-        "background-size": "cover", // 表示するコンテナの大きさに基づいて、背景画像を調整
-        "background-repeat": "no-repeat", // 画像をタイル状に繰り返し表示しない
-    });
-    $("<div>").appendTo($("body")).css({
-        zIndex: -1,
-        background: "rgba(255,255,255,0.9)",
-        position: "fixed",
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0
-    });
+    yaju1919.setBgImage("https://lohas.nicoseiga.jp/thumb/3364040i?");
     var h = $("<div>").appendTo($("body")).css({
         "text-align": "center",
         padding: "1em",
