@@ -239,7 +239,7 @@
                 activFunc = function(){
                     var num = inputNumberOrder();
                     var order = (num++)%arr.length;
-                    $("#aa").val(order);
+                    $("#aa").val(String(order));
                     return arr[order];
                 };
             }
