@@ -1,6 +1,10 @@
 (function(){
     'use strict';
+    $("html").css({
+        height: "100%",
+    });
     $("body").css({
+        height: "100%",
         "background-image": 'url("https://lohas.nicoseiga.jp/thumb/3364040i?")',
         "background-attachment": "fixed", // コンテンツの高さが画像の高さより大きい時、動かないように固定
         "background-position": "center center",// 画像を常に天地左右の中央に配置
@@ -8,6 +12,7 @@
         "background-repeat": "no-repeat", // 画像をタイル状に繰り返し表示しない
     });
     var h = $("<div>").appendTo($("body")).css({
+        height: "100%",
         "text-align": "center",
         padding: "1em",
         background: "rgba(255,255,255,0.9)",
