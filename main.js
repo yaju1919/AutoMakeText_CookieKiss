@@ -10,7 +10,7 @@
     var h = $("<div>").appendTo($("body")).css({
         "text-align": "center",
         padding: "1em",
-        background: "rgba(255,255,255,0.5)"
+        background: "rgba(255,255,255,0.9)",
     });
     function addBtn(title, func, parentNode){
         return $("<button>").text(title).click(func).appendTo(parentNode||h);
