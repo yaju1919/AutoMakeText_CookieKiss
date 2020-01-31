@@ -175,9 +175,9 @@
             "マルコフ連鎖": '3',
         },
         change: function(v){
-            if(!v.length) return;
             if(v === '2') $("#order").parent().show();
             else $("#order").parent().hide();
+            if(!h_markov) return;
             if(v === '3') h_markov.show();
             else h_markov.hide();
         }
@@ -279,11 +279,9 @@
     }
     $("<h2>",{text:"4.モデルを作成"}).appendTo(h_ui);
     addBtn("この内容で文生成モデルを作成", function(){
-        $(document.body).css({cursor: "wait"});
-        h_result.text("モデル作成中...");
         try{
             var result = make();
-            if(result) h_result.text("モデルの作成が完了しました。");
+            if(result) h_result.text("モデルの作成が完了しました。(" + yaju1919.getTime() + ')');
             else h_result.text("原因不明のエラーです。");
         }
         catch(err){
@@ -293,7 +291,6 @@
             });
             $("<div>").appendTo(h_result).text(err);
         }
-        $(document.body).css({cursor: "auto"});
     }, h_ui);
     $("<h2>",{text:"5.文生成"}).appendTo(h_ui);
     addBtn("文生成", function(){
