@@ -237,8 +237,8 @@
             else if(arg === '2'){ // 順番
                 $("#aa").val('0');
                 activFunc = function(){
-                    var num = inputNumberOrder();
-                    var order = (num++)%arr.length;
+                    var next = inputNumberOrder() + 1;
+                    var order = next % arr.length;
                     $("#aa").val(String(order));
                     return arr[order];
                 };
@@ -278,7 +278,7 @@
     }
     $("<h2>",{text:"4.モデルを作成"}).appendTo(h_ui);
     addBtn("この内容で文生成モデルを作成", make);
-    $("<h2>",{text:"5.文生成"}).appendTo(h);  
+    $("<h2>",{text:"5.文生成"}).appendTo(h_ui);  
     addBtn("文生成", function(){
         if(!activFunc) return h_result.text("文生成モデルがありません。");
         yaju1919.addInputText(h_result.empty(),{
