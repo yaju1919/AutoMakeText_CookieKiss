@@ -170,10 +170,10 @@
             "マルコフ連鎖": '3',
         },
         change: function(v){
-            if(v === '2') $("#aa").show();
-            else $("#aa").hide();
-            if(v === '3') $("#bb").add("#cc").show();
-            else $("#bb").add("#cc").hide();
+            if(v === '2') $("#aa").parent().show();
+            else $("#aa").parent().hide();
+            if(v === '3') $("#bb").parent().add($("#cc").parent()).show();
+            else $("#bb").parent().add($("#cc").parent()).hide();
         }
     });
     var inputNumberOrder = yaju1919.addInputNumber(h_ui,{
@@ -181,13 +181,13 @@
         title: "順番",
         min: 0,
     });
-    $("#aa").hide();
+    $("#aa").parent().hide();
     var inputNumberMultiple = yaju1919.addInputNumber(h_ui,{
         id: "bb",
         title: "多重マルコフ連鎖",
         min: 1,
     });
-    $("#bb").hide();
+    $("#bb").parent().hide();
     var select_arg_split = yaju1919.addSelect(h_ui,{
         id: "cc",
         title: "品詞分解アルゴリズム",
@@ -198,11 +198,11 @@
             "形態素解析": '3',
         },
         change: function(v){
-            if(v === '1') $("#dd").show();
-            else $("#dd").hide();
+            if(v === '1') $("#dd").parent().show();
+            else $("#dd").parent().hide();
         }
     });
-    $("#cc").hide();
+    $("#cc").parent().hide();
     var inputNumberSplit = yaju1919.addInputNumber(h_ui,{
         id: "dd",
         title: "分割する文字数",
@@ -210,7 +210,7 @@
         min: 1,
         max: 99,
     });
-    $("#dd").hide();
+    $("#dd").parent().hide();
     var activFunc; // 現在稼働している関数
     function make(){
         var ar = [];
@@ -223,8 +223,11 @@
         }
         var arg = select_arg();
         if(['1','2'].indexOf(arg)!==-1){
-            var arr = ar.map(function(v){
-                return v.join('');
+            var arr = [];
+            ar.forEach(function(v){
+                v[1].forEach(function(text){
+                    arr.push(v[0] + text);
+                });
             });
             if(arg === '1'){ // ランダム
                 activFunc = function(){
@@ -259,7 +262,9 @@
             })(), inputNumberMultiple());
             $(document.body).css({cursor: "wait"});
             ar.forEach(function(v){ // クッソ時間かかる処理
-                markov.add(v[0],v[1]);
+                v[1].forEach(function(text){
+                    markov.add(v[0],text);
+                });
             });
             activFunc = function(){
                 return markov.make();
