@@ -169,7 +169,6 @@
     //---------------------------------------------------------
     var select_arg = yaju1919.addSelect(h_ui,{
         title: "文生成アルゴリズム",
-        placeholder: "選択してください",
         list: {
             "ランダム": '1',
             "順番": '2',
@@ -196,7 +195,6 @@
     });
     var select_arg_split = yaju1919.addSelect(h_markov,{
         title: "品詞分解アルゴリズム",
-        placeholder: "選択してください",
         list: {
             "文字数ごとに分割": '1',
             "文字種ごとに分割": '2',
@@ -216,9 +214,10 @@
     });
     $("#split").parent().hide();
     var activFunc; // 現在稼働している関数
-    window.DB = DB;
+    window.DB = DB; // for debug
     function make(){
         var ar = [];
+        window.ar = ar; // for debug
         for(var k in select){
             if(!select[k]()) continue;
             for(var v in select_name){
@@ -229,7 +228,6 @@
             }
         }
         var arg = select_arg();
-        window.ar = ar;
         if(['1','2'].indexOf(arg)!==-1){
             var arr = [];
             ar.forEach(function(v){
