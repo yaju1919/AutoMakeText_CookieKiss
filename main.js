@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    yaju1919.setBgImage("https://lohas.nicoseiga.jp/thumb/3364040i?");
+    yaju1919.setBgImg("https://lohas.nicoseiga.jp/thumb/3364040i?");
     var h = $("<div>").appendTo($("body")).css({
         "text-align": "center",
         padding: "1em",
