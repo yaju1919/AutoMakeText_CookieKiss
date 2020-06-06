@@ -304,7 +304,8 @@
             title: "output",
             value: activFunc(),
             readonly: true,
-            textarea: true
+            textarea: true,
+            hankaku: false
         });
     }, h_ui);
     var resource_URL_list = [
